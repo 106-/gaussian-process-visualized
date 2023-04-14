@@ -98,3 +98,20 @@ class RBFKernel {
         return K;
     }
 }
+
+class ExponentialKernel {
+    constructor(theta1, theta2) {
+        this.theta1 = theta1;
+        this.theta2 = theta2;
+    }
+
+    forward(distance, add_likelihood) {
+        var K = tf.exp(distance.sqrt().mul(-1).div(this.theta1));
+
+        if (add_likelihood) {
+            var likelihood = tf.eye(distance.shape[0]).mul(this.theta2);
+            K = K.add(likelihood);
+        }
+        return K;
+    }
+}
