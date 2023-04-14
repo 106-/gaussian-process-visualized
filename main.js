@@ -12,7 +12,7 @@ class RandomFunction {
         var y3 = tf.sin(x.mul(this.pi / this.param[2]));
         var y4 = tf.cos(x.mul(this.pi / this.param[3]));
         var y5 = tf.randomNormal([x.shape[0]]).mul(scale);
-        return y1.add(y2).add(y3).add(y4).add(y5);
+        return y1.add(y2).add(y3).add(y4).add(y5).div(2);
     }
 }
 
@@ -32,9 +32,9 @@ function init() {
     el.appendChild(app.view);
 
     pc = new PointConvert(SCREEN_WIDTH, SCREEN_HEIGHT);
-    rf = new RandomFunction();
 
     // 真の関数の作成
+    rf = new RandomFunction();
     twopi = 2 * 3.1415
     x_ground_truth = tf.linspace(-twopi, twopi, 1000);
     y_ground_truth = rf.target(x_ground_truth, 0);
@@ -59,7 +59,7 @@ function init() {
     var sigma_range = tf.tensor(sigma).mul(3.0)
     var x = tf.concat([x_pred, tf.reverse(x_pred)]);
     var y = tf.concat([tf.add(mu, sigma_range), tf.reverse(tf.sub(mu, sigma_range))]);
-    confidence = new FillRange(x, y, 0x8D8F8E, pc);
+    confidence = new FillRange(x, y, 0xADADAD, pc);
 
     // 描画
     confidence.plot(graphics);
