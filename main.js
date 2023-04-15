@@ -48,8 +48,9 @@ function init() {
     observed = new Points(array, 3, 0x505050, pc);
 
     // ガウス過程モデルの作成
-    gp = new GaussianProcess(x_train.expandDims(1), y_train.expandDims(1), new RBFKernel(1., 0.3, 0.5));
+    // gp = new GaussianProcess(x_train.expandDims(1), y_train.expandDims(1), new RBFKernel(1., 0.3, 0.5));
     // gp = new GaussianProcess(x_train.expandDims(1), y_train.expandDims(1), new ExponentialKernel(2.5, 0.5));
+    gp = new GaussianProcess(x_train.expandDims(1), y_train.expandDims(1), new MaternKernel(0.75, 1.0));
     x_pred = tf.linspace(-twopi, twopi, 200);
     [mu, sigma] = gp.predict(x_pred.expandDims(1));
 

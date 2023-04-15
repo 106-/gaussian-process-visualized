@@ -115,3 +115,24 @@ class ExponentialKernel {
         return K;
     }
 }
+
+// v=3/2
+class MaternKernel {
+    constructor(theta1, theta2) {
+        this.theta1 = theta1;
+        this.theta2 = theta2;
+    }
+
+    forward(distance, add_likelihood) {
+        var r = distance.sqrt();
+        var y1 = r.mul(tf.sqrt(3)).div(this.theta1);
+        var y2 = tf.exp(y1.mul(-1));
+        var K = y1.add(1).mul(y2);
+
+        if (add_likelihood) {
+            var likelihood = tf.eye(distance.shape[0]).mul(this.theta2);
+            K = K.add(likelihood);
+        }
+        return K;
+    }
+}
