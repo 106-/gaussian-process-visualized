@@ -36,60 +36,68 @@ class PointConvert {
         for (var i = 0; i < affine_matrix.length; i++) {
             this.convert_marix = tf.matMul(this.convert_marix, affine_matrix[i]);
         };
+        this.rev_convert_matrix = tf.tensor(math.inv(this.convert_marix.arraySync()));
     }
 
     convert(points) {
-        return tf.matMul(points, this.convert_marix).arraySync();
+        return tf.matMul(points, this.convert_marix);
+    }
+
+    reverse_convert(points) {
+        return tf.matMul(points, this.rev_convert_matrix);
     }
 }
 
 class Points {
     constructor(points, width, color, pc) {
-        points = tf.concat2d([
-            points.transpose(),
-            tf.ones([1, points.shape[0]])
-        ]).transpose();
-        this.points = pc.convert(points);
+        this.points = tf.concat2d([
+            points,
+            tf.ones([points.shape[0], 1])
+        ], 1);
 
         this.width = width;
         this.color = color;
+        this.pc = pc;
     }
 
     plot(graphics) {
+        var pp = this.pc.convert(this.points).arraySync();
         graphics.lineStyle(this.width, this.color);
-        graphics.moveTo(this.points[0][0], this.points[0][1]);
-        for (let i = 1; i < this.points.length; i++) {
-            graphics.lineTo(this.points[i][0], this.points[i][1]);
+        graphics.moveTo(pp[0][0], pp[0][1]);
+        for (let i = 0; i < pp.length; i++) {
+            graphics.lineTo(pp[i][0], pp[i][1]);
         }
     }
 
     scatter(graphics) {
-        graphics.lineStyle(this.width, this.color);
+        var pp = this.pc.convert(this.points).arraySync();
         graphics.beginFill(this.color);
-        for (let i = 1; i < this.points.length; i++) {
-            graphics.drawCircle(this.points[i][0], this.points[i][1], this.width);
+        for (let i = 0; i < pp.length; i++) {
+            graphics.drawCircle(pp[i][0], pp[i][1], this.width);
         }
         graphics.endFill();
     }
 };
 
 class FillRange {
-    constructor(x, y, color, pc) {
-        var points = tf.stack([
-            x,
-            y,
-            tf.ones([x.shape[0]]),
+    constructor(x, mu, sigma, range, color, pc) {
+        var sigma_range = tf.tensor(sigma).mul(range);
+        this.points = tf.stack([
+            tf.concat([x, tf.reverse(x)]),
+            tf.concat([tf.add(mu, sigma_range), tf.reverse(tf.sub(mu, sigma_range))]),
+            tf.ones([x.shape[0] * 2]),
         ]).transpose();
-        this.points = pc.convert(points);
-
+        this.pc = pc;
         this.color = color;
     }
+
     plot(graphics) {
+        var pp = this.pc.convert(this.points).arraySync();
         graphics.beginFill(this.color);
         graphics.lineStyle(1, this.color);
-        graphics.moveTo(this.points[0][0], this.points[0][1]);
-        for (let i = 1; i < this.points.length; i++) {
-            graphics.lineTo(this.points[i][0], this.points[i][1]);
+        graphics.moveTo(pp[0][0], pp[0][1]);
+        for (let i = 0; i < pp.length; i++) {
+            graphics.lineTo(pp[i][0], pp[i][1]);
         }
         graphics.closePath();
         graphics.endFill();

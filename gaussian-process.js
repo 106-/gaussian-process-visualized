@@ -60,27 +60,6 @@ class GaussianProcess {
     }
 }
 
-// 学習できないガウス過程モデル
-class PrimitiveGaussianProcess {
-    constructor(data, kernel) {
-        var distance = this._distanceMatrix(data);
-        this.kernel = kernel;
-        this.K = this.kernel.forward(distance);
-        this.K_inv = tf.tensor(math.inv(this.K.arraySync()));
-    }
-
-    sampling(length) {
-        return multivariateGaussian(tf.zeros([this.K.shape[0], 1]), this.K, length);
-    }
-
-    // https://stackoverflow.com/questions/37009647/compute-pairwise-distance-in-a-batch-without-replicating-tensor-in-tensorflow
-    _distanceMatrix(data) {
-        const a = data.expandDims(1);
-        const b = data.expandDims(0);
-        return tf.squaredDifference(a, b).sum(2);
-    }
-}
-
 class RBFKernel {
     constructor(theta1, theta2, theta3) {
         this.theta1 = theta1;
