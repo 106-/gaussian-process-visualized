@@ -1,5 +1,8 @@
 var SCREEN_WIDTH = window.innerWidth;
 var SCREEN_HEIGHT = window.innerHeight;
+var app, pc;
+var confidence, ground_truth_line, observed, predicted_mean;
+var confidence_g, ground_truth_line_g, observed_g, predicted_mean_g;
 
 class RandomFunction {
     constructor() {
@@ -20,7 +23,7 @@ init();
 
 function init() {
     // Pixiアプリケーション生成
-    let app = new PIXI.Application({
+    app = new PIXI.Application({
         width: SCREEN_WIDTH,
         height: SCREEN_HEIGHT,
         backgroundColor: 0xD6D6D6,
@@ -36,6 +39,8 @@ function init() {
     el.appendChild(app.view);
 
     pc = new PointConvert(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    window.addEventListener('resize', onWindowResize, false);
 
     // 真の関数の作成
     rf = new RandomFunction();
@@ -122,4 +127,25 @@ function init() {
         }
     });
 
+}
+
+function onWindowResize() {
+    SCREEN_WIDTH = window.innerWidth;
+    SCREEN_HEIGHT = window.innerHeight;
+    app.renderer.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    pc.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    confidence_g.clear();
+    ground_truth_g.clear();
+    observed_g.clear();
+
+    confidence.plot(confidence_g);
+    ground_truth_line.plot(ground_truth_g);
+    observed.scatter(observed_g);
+
+    if (show_mean) {
+        predicted_mean_g.clear();
+        predicted_mean.plot(predicted_mean_g);
+    }
 }

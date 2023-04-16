@@ -1,5 +1,17 @@
 class PointConvert {
     constructor(width, height) {
+        this.resize(width, height);
+    }
+
+    convert(points) {
+        return tf.matMul(points, this.convert_marix);
+    }
+
+    reverse_convert(points) {
+        return tf.matMul(points, this.rev_convert_matrix);
+    }
+
+    resize(width, height) {
         var scale_width = 6;
         var x_mag = 1 / (scale_width * 2);
         var y_mag = 1 / (scale_width * 2 * (height / width));
@@ -37,14 +49,6 @@ class PointConvert {
             this.convert_marix = tf.matMul(this.convert_marix, affine_matrix[i]);
         };
         this.rev_convert_matrix = tf.tensor(math.inv(this.convert_marix.arraySync()));
-    }
-
-    convert(points) {
-        return tf.matMul(points, this.convert_marix);
-    }
-
-    reverse_convert(points) {
-        return tf.matMul(points, this.rev_convert_matrix);
     }
 }
 
